@@ -1,91 +1,99 @@
 
 #include "get_next_line.h"
 
-
-
-#include <stdio.h>
-
-char	*save_line(char *buf)
+char	*ft_get_line(char *save)
 {
-	size_t	i;
-	size_t	j;
-	char	*save;
+	int		i;
+	char	*s;
 
 	i = 0;
-	while (buf[i] && buf[i] != '\n')
+	if (!save[i])
+		return (NULL);
+	while (save[i] && save[i] != '\n')
 		i++;
-	if (!buf[i])
+	s = (char *)malloc(sizeof(char) * (i + 2));
+	if (s == NULL)
 		return (NULL);
-	save = (char *)malloc(sizeof(char) * (ft_strlen(buf) - i + 1));
-	if (save == NULL)
-		return (NULL);
-	j = 0;
-	i++;
-	while (i < ft_strlen(buf))
-		save[j++] = buf[i++];
-	save[j] = '\0';
-	return (save);
-}
-
-char	*get_line(char *buf, char *save)
-{
-	size_t	i;
-	size_t	j;
-	char	*line;
-
 	i = 0;
-	j = 0;
-	if (save == NULL && (buf == NULL || ft_strlen(buf) == 0))
-		return (NULL);
-	while (buf[i] != '\0' && buf[i] != '\n')
-		i++;
-	line = (char *)malloc(sizeof(char) * (i + 1));
-	if (line == NULL)
-		return (NULL);
-	while (j < i)
+	while (save[i] && save[i] != '\n')
 	{
-		line[j] = buf[j];
-		j++;
+		s[i] = save[i];
+		i++;
 	}
-	line[j] = '\0';
-	return (line);
+	if (save[i] == '\n')
+	{
+		s[i] = save[i];
+		i++;
+	}
+	s[i] = '\0';
+	return (s);
 }
 
-char	*read_file(int fd, char *buf)
+char	*ft_save(char *save)
 {
-	ssize_t	r_size;
-	char	*read_str;
+	int		i;
+	int		c;
+	char	*s;
 
-	buf = NULL;
+	i = 0;
+	while (save[i] && save[i] != '\n')
+		i++;
+	if (!save[i])
+	{
+		free(save);
+		return (NULL);
+	}
+	s = (char *)malloc(sizeof(char) * (ft_strlen(save) - i + 1));
+	if (!s)
+		return (NULL);
+	i++;
+	c = 0;
+	while (save[i])
+		s[c++] = save[i++];
+	s[c] = '\0';
+	free(save);
+	return (s);
+}
+
+char	*read_file(int fd, char *save)
+{
+	char	*buf;
+	ssize_t	read_size;
+
+	buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (buf == NULL)
+		return (NULL);
 	while (1)
 	{
-		read_str = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-		if (read_str == NULL)
-			return (NULL);
-		r_size = read(fd, read_str, BUFFER_SIZE);
-		if (r_size == 0)
-		{
-			free(read_str);
+		read_size = read(fd, buf, BUFFER_SIZE);
+		if (read_size == 0)
 			break;
+		if (read_size == -1)
+		{
+			free(buf);
+			return (NULL);
 		}
-		read_str[r_size] = '\0';
-		buf = combine_strs(buf, read_str);
-		if (ft_strchr(buf, '\n') != NULL)
+		buf[read_size] = '\0';
+		save = combine_strs(save, buf);
+		if (ft_strchr(save, '\n') == NULL)
 			break;
 	}
-	return (buf);
+	free(buf);
+	return (save);
 }
 
 char	*get_next_line(int fd)
 {
-	char		*buf;
 	char		*line;
 	static char	*save;
-	buf = read_file(fd, buf);
-	line = get_line(buf, save);
-	save = save_line(buf);
-	if (buf != NULL)
-		free(buf);
+
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	save = read_file(fd, save);
+	if (!save)
+		return (NULL);
+	line = ft_get_line(save);
+	save = ft_save(save);
 	return (line);
 }
 
@@ -94,12 +102,12 @@ char	*get_next_line(int fd)
 int main()
 {
 	char *test = "";
-	int fd = open("./text.txt", O_RDONLY);
-	test = get_next_line(fd);
-	printf("%s\n", test);
-	free(test);
-	test = get_next_line(fd);
-	printf("%s\n", test);
-	free(test);
-
+	int fd = open("test.txt", O_RDONLY);
+	while (test)
+	{
+		test = get_next_line(fd);
+		printf("%s", test);
+		free(test);
+	}
+	// system("leaks -q ./a.out");
 }

@@ -1,67 +1,60 @@
 
 #include "get_next_line.h"
 
-size_t	ft_strlen(const char *s)
+size_t	ft_strlen(char *str)
 {
-	size_t	len;
+	size_t	c;
 
-	len = 0;
-	while (*s)
-	{
-		len++;
-		s++;
-	}
-	return (len);
+	c = 0;
+	if (!str)
+		return (0);
+	while (str[c] != '\0')
+		c++;
+	return (c);
 }
 
-char	*ft_strchr(const char *s, int c)
+char	*ft_strchr(char *s, int c)
 {
-	if (c == 0)
-		return ((char *)s);
-	while (*s != '\0')
-	{
-		if ((unsigned char)*s == (unsigned char)c)
-			return ((char *)s);
-		s++;
-	}
-	return (NULL);
-}
-
-char	*combine_strs(char *buf, char *read_str)
-{
-	char	*combined;
-	size_t	i;
-	size_t	j;
+	int	i;
 
 	i = 0;
-	j = 0;
-	if (buf == NULL && read_str != NULL)
+	if (!s)
+		return (0);
+	if (c == '\0')
+		return ((char *)&s[ft_strlen(s)]);
+	while (s[i] != '\0')
 	{
-		combined = (char *)malloc(sizeof(char) * (ft_strlen(read_str) + 1));
-		if (combined == NULL)
-			return (NULL);
-		while (read_str[i] != '\0')
-		{
-			combined[i] = read_str[i];
-			i++;
-		}
-		return (combined);
+		if (s[i] == (char) c)
+			return ((char *)&s[i]);
+		i++;
 	}
-	combined = (char *)malloc(sizeof(char) * (ft_strlen(buf) + ft_strlen(read_str) + 1));
-	if (combined == NULL)
+	return (0);
+}
+
+char	*combine_strs(char *s1, char *s2)
+{
+	size_t	i;
+	size_t	c;
+	char	*str;
+
+	if (s1 == NULL)
+	{
+		s1 = (char *)malloc(sizeof(char));
+		s1[0] = '\0';
+	}
+	if (s1 == NULL || s2 == NULL)
 		return (NULL);
-	while (buf[i] != '\0')
-	{
-		combined[i] = buf[i];
-		i++;
-	}
-	while (read_str[j] != '\0')
-	{
-		combined[i] = read_str[j];
-		i++;
-		j++;
-	}
-	combined[i] = '\0';
-	free(read_str);
-	return (combined);
+	str = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	if (str == NULL)
+		return (NULL);
+	i = -1;
+	c = 0;
+	if (s1 != NULL)
+		while (s1[++i] != '\0')
+			str[i] = s1[i];
+	while (s2[c] != '\0')
+		str[i++] = s2[c++];
+	str[ft_strlen(s1) + ft_strlen(s2)] = '\0';
+	free(s1);
+	return (str);
 }

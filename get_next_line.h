@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-char	*combine_strs(char *dep, char *buff);
-char	*ft_strchr(const char *s, int c);
-size_t	ft_strlen(const char *s);
+size_t	ft_strlen(char *str);
+char	*ft_strchr(char *s, int c);
+char	*combine_strs(char *s1, char *s2);
 
 #endif

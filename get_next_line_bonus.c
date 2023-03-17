@@ -85,15 +85,15 @@ static char	*read_file(int fd, char *save)
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*save;
+	static char	*save[MAX_FD + 1];
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	save = read_file(fd, save);
-	if (save == NULL)
+	save[fd] = read_file(fd, save[fd]);
+	if (save[fd] == NULL)
 		return (NULL);
-	line = get_line(save);
-	save = save_line(save);
+	line = get_line(save[fd]);
+	save[fd] = save_line(save[fd]);
 	return (line);
 }
 
@@ -103,9 +103,13 @@ char	*get_next_line(int fd)
 // {
 // 	char *test = "";
 // 	int fd = open("test.txt", O_RDONLY);
+// 	int fd2 = open("test2.txt", O_RDONLY);
 // 	while (test)
 // 	{
 // 		test = get_next_line(fd);
+// 		printf("%s", test);
+// 		free(test);
+// 		test = get_next_line(fd2);
 // 		printf("%s", test);
 // 		free(test);
 // 	}

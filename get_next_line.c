@@ -6,11 +6,18 @@
 /*   By: mtayama <mtayama@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/19 18:48:08 by mtayama           #+#    #+#             */
-/*   Updated: 2024/05/25 14:49:29 by mtayama          ###   ########.fr       */
+/*   Updated: 2024/06/04 21:16:47 by mtayama          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+static void	*free_and_null(char **save)
+{
+	free(*save);
+	*save = NULL;
+	return (NULL);
+}
 
 static char	*save_line(char *save)
 {
@@ -23,13 +30,10 @@ static char	*save_line(char *save)
 	while (save[i] != '\0' && save[i] != '\n')
 		i++;
 	if (save[i] == '\0')
-	{
-		free(save);
-		return (NULL);
-	}
+		return (free_and_null(&save));
 	s = (char *)malloc(sizeof(char) * (ft_strlen(save) - i + 1));
 	if (s == NULL)
-		return (NULL);
+		return (free_and_null(&save));
 	i++;
 	while (save[i] != '\0')
 		s[j++] = save[i++];
@@ -82,11 +86,11 @@ static char	*read_file(int fd, char *save)
 		if (read_size == -1)
 		{
 			free(buf);
-			return (NULL);
+			return (free_and_null(&save));
 		}
 		buf[read_size] = '\0';
 		save = combine_strs(save, buf);
-		if (ft_strchr(save, '\n') != NULL)
+		if (save == NULL || ft_strchr(save, '\n') != NULL)
 			break ;
 	}
 	free(buf);
@@ -104,6 +108,8 @@ char	*get_next_line(int fd)
 	if (save == NULL)
 		return (NULL);
 	line = get_line(save);
+	if (line == NULL)
+		return (free_and_null(&save));
 	save = save_line(save);
 	return (line);
 }
@@ -121,4 +127,9 @@ char	*get_next_line(int fd)
 // 		free(test);
 // 	}
 // 	close(fd);
+// }
+
+// __attribute__((destructor))
+// static void destructor() {
+//     system("leaks -q a.out");
 // }
